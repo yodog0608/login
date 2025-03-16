@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V1r3x</title>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            background: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+            cursor: none; /* Hide the default cursor */
+        }
+
+        .login-container, .signup-container {
+            background: #1e1e1e;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            position: relative;
+            display: none; /* Hide the sign-up form initially */
+        }
+
+        .login-container.active, .signup-container.active {
+            display: block; /* Show the active form */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: #2d2d2d;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(98, 0, 238, 0.7);
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        input:focus {
+            box-shadow: 0 0 15px rgba(98, 0, 238, 1);
+        }
+
+        .login-btn, .signup-btn {
+            background: #6200EE;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s ease;
+            position: relative;
+        }
+
+        .login-btn:hover, .signup-btn:hover {
+            background: #3700B3;
+            transform: scale(1.05);
+        }
+
+        .login-btn:active, .signup-btn:active {
+            transform: scale(1);
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .cursor-trail {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #6200EE;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s ease, transform 0.1s ease;
+            opacity: 0.8;
+        }
+
+        .cursor-trail.line {
+            width: 2px;
+            height: 2px;
+            background: #6200EE;
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container active">
+        <h1>V1r3x</h1>
+        <form>
+            <input type="text" id="login-username" placeholder="Username" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div class="footer">Don't have an account? <a href="#" style="color: #6200EE;" onclick="toggleForms()">Sign up</a></div>
+    </div>
+
+    <div class="signup-container">
+        <h1>V1r3x</h1>
+        <form id="signup-form">
+            <input type="text" id="signup-username" placeholder="Username" required>
+            <input type="password" id="signup-password" placeholder="Password" required>
+            <button type="submit" class="signup-btn">Create Account</button>
+        </form>
+        <div class="footer">Already have an account? <a href="#" style="color: #6200EE;" onclick="toggleForms()">Login</a></div>
+    </div>
+
+    <script>
+        const cursorTrails = [];
+        const trailLength = 20;
+
+        for (let i = 0; i < trailLength; i++) {
+            const trail = document.createElement('div');
+            trail.classList.add('cursor-trail');
+            if (i % 2 === 0) {
+                trail.classList.add('line');
+            }
+            document.body.appendChild(trail);
+            cursorTrails.push(trail);
+        }
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let isOverButton = false;
+
+        // Detect when mouse enters and leaves the button
+        const button = document.querySelector('.login-btn');
+        button.addEventListener('mouseenter', () => {
+            isOverButton = true;
+        });
+        button.addEventListener('mouseleave', () => {
+            isOverButton = false;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.pageX;
+            mouseY = e.pageY;
+        });
+
+        function animateCursorTrail() {
+            let prevX = mouseX;
+            let prevY = mouseY;
+
+            cursorTrails.forEach((trail, index) => {
+                const nextX = prevX;
+                const nextY = prevY;
+
+                trail.style.left = `${nextX}px`;
+                trail.style.top = `${nextY}px`;
+
+                prevX = nextX;
+                prevY = nextY;
+
+                trail.style.opacity = (trailLength - index) / trailLength;
+            });
+
+            if (!isOverButton) {
+                const lastTrail = cursorTrails[cursorTrails.length - 1];
+                lastTrail.style.width = '10px';
+                lastTrail.style.height = '10px';
+                lastTrail.style.borderRadius = '50%';
+            }
+
+            requestAnimationFrame(animateCursorTrail);
+        }
+
+        animateCursorTrail();
+
+        function toggleForms() {
+            const loginForm = document.querySelector('.login-container');
+            const signupForm = document.querySelector('.signup-container');
+
+            loginForm.classList.toggle('active');
+            signupForm.classList.toggle('active');
+        }
+
+        // Handle the signup form submission
+        document.getElementById("signup-form").addEventListener("submit", function(event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            // Get the username and password from the form
+            const username = document.getElementById("signup-username").value;
+            const password = document.getElementById("signup-password").value;
+
+            // Create a POST request to send data to your Google Apps Script Web App
+            const url = "https://script.google.com/macros/s/AKfycbzEBKV0n3mI8qpyPVZsUaLUxo6NNgJdYcey5nR2cskvZQKPzFRy_fPzNK9fAHuxXSXt/exec";  // Replace with your URL
+            const data = {
+                username: username,
+                password: password
+            };
+
+            // Send data using fetch API
+            fetch(url, {
+                method: 'POST',
+                body: new URLSearchParams(data),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);  // Log the response from Google Apps Script
+                alert('Account created successfully!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create account. Try again.');
+            });
+        });
+    </script>
+</body>
+</html>
